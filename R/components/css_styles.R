@@ -1,6 +1,9 @@
-# Component: Refined Minimalistic CSS Styling
+# Component: Minimalistic CSS Styling with Favicon
 minimal_css <- function() {
   tags$head(
+    # --- NEW: Sets the icon strictly in the browser tab ---
+    tags$link(rel = "shortcut icon", href = "logo.png", type = "image/png"),
+
     tags$style(HTML(
       "
       @import url('https://googleapis.com');
@@ -12,6 +15,7 @@ minimal_css <- function() {
         padding: 30px 15px;
       }
       
+      /* Reverted back to the original simple title format */
       h2 {
         font-weight: 600;
         letter-spacing: -0.02em;
@@ -45,7 +49,6 @@ minimal_css <- function() {
         margin: 25px 0 !important;
       }
 
-      /* --- DASHBOARD METRIC CARDS --- */
       .result-card-container {
         display: flex;
         gap: 16px;
@@ -58,11 +61,10 @@ minimal_css <- function() {
         min-width: 180px;
         padding: 20px;
         border-radius: 14px;
-        text-align: center; /* Center text and numbers */
+        text-align: center;
         box-shadow: 0 1px 3px rgba(0,0,0,0.02);
       }
 
-      /* Card Labels (Small & Muted) */
       .card-label {
         font-size: 11px;
         text-transform: uppercase;
@@ -72,7 +74,6 @@ minimal_css <- function() {
         display: block;
       }
 
-      /* Massive Dashboard Numbers */
       .card-value {
         font-size: 32px;
         font-weight: 700;
@@ -93,17 +94,15 @@ minimal_css <- function() {
         display: inline !important;
       }
 
-      /* Equation styling */
       .formula-box {
         font-size: 13px;
         color: #64748b;
         margin-top: 15px;
       }
 
-            /* --- PROMINENT MINIMAL RUN BUTTON --- */
       .btn-run {
         width: 100%;
-        background-color: #4f46e5 !important; /* Premium Indigo */
+        background-color: #4f46e5 !important;
         color: #ffffff !important;
         font-family: 'Inter', sans-serif !important;
         font-weight: 600 !important;
@@ -116,14 +115,8 @@ minimal_css <- function() {
         box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.1), 0 2px 4px -1px rgba(79, 70, 229, 0.06) !important;
       }
 
-      .btn-run:hover {
-        background-color: #4338ca !important; /* Darker Indigo on hover */
-      }
-
-      .btn-run:active {
-        transform: scale(0.98) !important; /* Subtle press animation */
-      }
-
+      .btn-run:hover { background-color: #4338ca !important; }
+      .btn-run:active { transform: scale(0.98) !important; }
     "
     ))
   )
