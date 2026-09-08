@@ -23,55 +23,103 @@ server <- function(input, output, session) {
     }
   })
 
-  # Render UI Workspace: Generates the rows side-by-side inside the sidebar
+  # --- ANTI-FOCUS LOSS STATE TRACKER ---
+  # We read the raw inputs and slow them down (debounce) by 1000ms.
+  # This stops the server from frantically rebuilding while you type a word!
+  reactive_row_inputs <- reactive({
+    ids <- card_rows$ids
+    # Capture current state safely
+    vals <- lapply(ids, function(id) {
+      list(
+        name = input[[paste0("card_name_", id)]],
+        qty = input[[paste0("card_qty_", id)]],
+        hits = input[[paste0("card_hits_", id)]]
+      )
+    })
+    names(vals) <- as.character(ids)
+    vals
+  })
+
+  # Pause processing for 1000 milliseconds (1 second) after the last keystroke
+  debounced_row_inputs <- debounce(reactive_row_inputs, 1000)
+
+  # Render UI Workspace: Generates the rows seamlessly using debounced memory
   output$dynamic_multivariate_ui <- renderUI({
     ids <- card_rows$ids
+    saved_states <- debounced_row_inputs() # Read from the debounced snapshot
 
     ui_rows <- lapply(ids, function(id) {
+      str_id <- as.character(id)
+
+      # Pull values from memory securely
+      current_name <- if (!is.null(saved_states[[str_id]]$name)) {
+        saved_states[[str_id]]$name
+      } else {
+        paste0("Card ", id)
+      }
+      current_qty <- if (!is.null(saved_states[[str_id]]$qty)) {
+        saved_states[[str_id]]$qty
+      } else {
+        3
+      }
+      current_hits <- if (!is.null(saved_states[[str_id]]$hits)) {
+        saved_states[[str_id]]$hits
+      } else {
+        1
+      }
+
       div(
-        class = "card-input-row only-pos-int",
+        class = "card-input-row",
         div(
           class = "card-name-input",
+          # CLEANED: Stripped away the unsupported json argument to stop the asJSON error
           textInput(
             paste0("card_name_", id),
             label = if (id == ids[1]) "Card Name" else NULL,
-            value = paste0("Card ", id)
+            value = current_name
           )
         ),
         div(
           class = "card-qty-input",
-          # UPDATED: Changed starting default value from 4 to 3
           numericInput(
             paste0("card_qty_", id),
             label = if (id == ids[1]) "In Deck" else NULL,
-            value = 3,
+            value = current_qty,
             min = 0,
             step = 1
           )
         ),
         div(
           class = "card-hits-input",
-          # UPDATED: Kept starting default value at 1 as requested
           numericInput(
             paste0("card_hits_", id),
             label = if (id == ids[1]) "Min Hits" else NULL,
-            value = 1,
+            value = current_hits,
             min = 0,
             step = 1
           )
         ),
+
         tags$button(
-          class = "btn-remove",
+          class = "btn-remove-card",
           type = "button",
           onclick = sprintf(
             "Shiny.setInputValue('remove_card', '%d', {priority: 'event'})",
             id
           ),
-          "✕"
+          HTML(
+            '
+              <svg xmlns="http://w3.org" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            '
+          )
         )
       )
     })
-    do.call(tagList, ui_rows)
+
+    tagList(ui_rows)
   })
 
   # 1. Centralized boundary safechecks (Translated to TCG terms)
@@ -101,9 +149,11 @@ server <- function(input, output, session) {
   calculated_data <- eventReactive(
     input$run_calc,
     {
-      req(input$N, input$n, input$app_mode)
+      req(input$N, input$n)
+      # Check if toggle is checked (TRUE = multivariate, FALSE = single)
+      req(!is.null(input$app_mode_toggle))
 
-      if (input$app_mode == "single") {
+      if (input$app_mode_toggle == FALSE) {
         req(input$K, input$k)
         return(list(
           mode = "single",
@@ -113,10 +163,7 @@ server <- function(input, output, session) {
           k = input$k
         ))
       } else {
-        # Multivariate Mode: Scrape dynamic rows safely
         ids <- card_rows$ids
-
-        # Extract values from input dynamically using their unique IDs
         card_names <- sapply(ids, function(id) {
           input[[paste0("card_name_", id)]]
         })
@@ -127,7 +174,6 @@ server <- function(input, output, session) {
           as.integer(input[[paste0("card_hits_", id)]])
         }))
 
-        # Handle blank or loading states gracefully
         if (any(is.na(card_qtys)) || any(is.na(card_hits))) {
           return(NULL)
         }
