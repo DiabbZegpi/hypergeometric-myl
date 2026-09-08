@@ -116,6 +116,68 @@ minimal_css <- function() {
 
       .btn-run:hover { background-color: #4338ca !important; }
       .btn-run:active { transform: scale(0.98) !important; }
+
+          /* Radio button mode switcher alignment */
+      .mode-container .shiny-options-group {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      
+      .mode-container .radio label {
+        padding: 8px 16px !important;
+        background-color: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s ease;
+      }
+      
+      .mode-container input[type='radio']:checked + span {
+        font-weight: 600;
+      }
+
+      /* Dynamic Card Input Rows */
+      .card-input-row {
+        display: flex;
+        gap: 8px;
+        align-items: flex-end;
+        margin-bottom: 10px;
+      }
+      
+      .card-name-input { flex: 2; }
+      .card-qty-input { flex: 1; }
+      .card-hits-input { flex: 1; }
+      
+      /* Action buttons layout */
+      .action-btn-group {
+        display: flex;
+        gap: 8px;
+        margin-top: 15px;
+      }
+      
+      .btn-secondary {
+        flex: 1;
+        background-color: #ffffff !important;
+        color: #475569 !important;
+        border: 1px solid #cbd5e1 !important;
+        font-weight: 500 !important;
+        padding: 8px 12px !important;
+        border-radius: 6px !important;
+      }
+      
+      .btn-secondary:hover { background-color: #f8fafc !important; }
+      
+      .btn-remove {
+        background-color: #fee2e2 !important;
+        color: #ef4444 !important;
+        border: none !important;
+        padding: 8px 12px;
+        border-radius: 6px;
+        height: 38px;
+      }
+      .btn-remove:hover { background-color: #fecaca !important; }
     "
     ))
   )
