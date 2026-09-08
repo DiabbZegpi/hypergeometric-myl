@@ -1,8 +1,8 @@
 # Component: Minimalistic CSS Styling with Favicon
 minimal_css <- function() {
   tags$head(
-    # --- NEW: Sets the icon strictly in the browser tab ---
-    tags$link(rel = "shortcut icon", href = "logo.png", type = "image/png"),
+    # --- UPDATED: Points exactly to the flat root asset folder ---
+    tags$link(rel = "shortcut icon", href = "./logo.png", type = "image/png"),
 
     tags$style(HTML(
       "
@@ -15,7 +15,6 @@ minimal_css <- function() {
         padding: 30px 15px;
       }
       
-      /* Reverted back to the original simple title format */
       h2 {
         font-weight: 600;
         letter-spacing: -0.02em;

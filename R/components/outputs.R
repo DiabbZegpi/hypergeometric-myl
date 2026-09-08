@@ -5,21 +5,22 @@ hypergeometric_outputs <- function() {
       "Dashboard Metrics"
     ),
 
+    # We use UI rendering tools to connect our isolated text values
     div(
       class = "result-card-container",
       div(
         class = "result-card card-exact",
-        span(class = "card-label", "Exactly x Successes"),
+        uiOutput("label_exact"),
         span(class = "card-value", textOutput("prob_exact"))
       ),
       div(
         class = "result-card card-less",
-        span(class = "card-label", "x or Fewer Successes"),
+        uiOutput("label_less"),
         span(class = "card-value", textOutput("prob_less"))
       ),
       div(
         class = "result-card card-greater",
-        span(class = "card-label", "x or More Successes"),
+        uiOutput("label_greater"),
         span(class = "card-value", textOutput("prob_greater"))
       )
     )

@@ -1,39 +1,34 @@
 library(shiny)
 
 server <- function(input, output, session) {
-  # 1. Centralized boundary safechecks (Directly on inputs, keeps UI warnings live)
+  # 1. Centralized boundary safechecks (Translated to TCG terms)
   validate_inputs <- function(N, K, n, k) {
     validate(
-      need(N >= 1, "• Total Population Size (N) must be at least 1."),
+      need(N >= 1, "• Deck Size must be at least 1 card."),
       need(
         K <= N,
-        "• Successes in Population (K) cannot be larger than Population Size (N)."
+        "• Target Cards in Deck cannot be larger than your total Deck Size."
       ),
       need(
         n <= N,
-        "• Sample Size (n) cannot be larger than Population Size (N)."
+        "• Cards to Draw cannot be larger than your total Deck Size."
       ),
       need(
         k <= K,
-        "• Sample Successes (x) cannot be larger than Population Successes (K)."
+        "• Desired Hits cannot be larger than the total Target Cards in your deck."
       ),
       need(
         k <= n,
-        "• Sample Successes (x) cannot be larger than Sample Size (n)."
+        "• Desired Hits cannot be larger than the number of Cards to Draw."
       )
     )
   }
 
-  # 2. ISOLATE REACTIVITY
-  # This block fires ONLY when the 'Run Calculation' button is clicked.
-  # It takes a snapshot of the current input values.
+  # 2. Isolate Reactivity via Run Button
   calculated_data <- eventReactive(
     input$run_calc,
     {
-      # Check if inputs exist
       req(input$N, input$K, input$n, input$k)
-
-      # Return values as a clean list blueprint
       list(
         N = input$N,
         K = input$K,
@@ -42,13 +37,12 @@ server <- function(input, output, session) {
       )
     },
     ignoreNULL = FALSE
-  ) # ignoreNULL = FALSE ensures it runs once automatically at startup
+  )
 
-  # 3. Text Outputs reading strictly from the frozen snapshot data
+  # 3. Clean Dashboard Value Outputs (Calculations are identical, numbers only)
   output$prob_exact <- renderText({
     data <- calculated_data()
     validate_inputs(data$N, data$K, data$n, data$k)
-
     prob <- dhyper(data$k, data$K, data$N - data$K, data$n)
     paste0(round(prob * 100, 1), "%")
   })
@@ -56,7 +50,6 @@ server <- function(input, output, session) {
   output$prob_less <- renderText({
     data <- calculated_data()
     validate_inputs(data$N, data$K, data$n, data$k)
-
     prob <- phyper(data$k, data$K, data$N - data$K, data$n)
     paste0(round(prob * 100, 1), "%")
   })
@@ -64,7 +57,6 @@ server <- function(input, output, session) {
   output$prob_greater <- renderText({
     data <- calculated_data()
     validate_inputs(data$N, data$K, data$n, data$k)
-
     prob <- phyper(
       data$k - 1,
       data$K,
@@ -75,7 +67,23 @@ server <- function(input, output, session) {
     paste0(round(prob * 100, 1), "%")
   })
 
-  # 4. Interactive Bar Plot Logic using frozen snapshot data
+  # Dynamic Card Labels (Using translated gaming context text structures)
+  output$label_exact <- renderUI({
+    data <- calculated_data()
+    span(class = "card-label", paste0("Exactly ", data$k, " Hits"))
+  })
+
+  output$label_less <- renderUI({
+    data <- calculated_data()
+    span(class = "card-label", paste0(data$k, " or Fewer Hits"))
+  })
+
+  output$label_greater <- renderUI({
+    data <- calculated_data()
+    span(class = "card-label", paste0(data$k, " or More Hits"))
+  })
+
+  # 4. Interactive Bar Plot Logic (With Updated Gaming Axis Titles)
   output$dist_plot <- renderPlot({
     data <- calculated_data()
     validate_inputs(data$N, data$K, data$n, data$k)
@@ -98,7 +106,7 @@ server <- function(input, output, session) {
       col = bar_colors,
       border = NA,
       main = NA,
-      xlab = "Number of Successes in Sample (x)",
+      xlab = "Number of Hits Drawn in Hand (x)", # Gaming axis label
       ylab = "Probability (%)",
       ylim = c(0, max(probs_pct) * 1.15),
       yaxt = "n",
@@ -117,6 +125,13 @@ server <- function(input, output, session) {
       las = 1,
       col = NA,
       col.ticks = "#cbd5e1"
+    )
+
+    lines(
+      x = c(par("usr")[1], par("usr")[1]),
+      y = c(0, max(probs_pct) * 1.15),
+      col = "#cbd5e1",
+      lwd = 2
     )
 
     label_colors <- rep("#64748b", length(x_vals))

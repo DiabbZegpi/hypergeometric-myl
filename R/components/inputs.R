@@ -7,34 +7,16 @@ hypergeometric_inputs <- function() {
 
     tags$div(
       class = "only-pos-int",
-      numericInput(
-        "N",
-        "Total Population Size (N):",
-        value = 100,
-        min = 1,
-        step = 1
-      ),
-      numericInput(
-        "K",
-        "Successes in Population (K):",
-        value = 20,
-        min = 0,
-        step = 1
-      ),
-      numericInput("n", "Sample Size (n):", value = 10, min = 1, step = 1),
-      numericInput(
-        "k",
-        "Successes in Sample (x):",
-        value = 3,
-        min = 0,
-        step = 1
-      )
+      # Updated default value parameters to match your custom settings
+      numericInput("N", "Total Deck Size:", value = 49, min = 1, step = 1),
+      numericInput("K", "Target Cards in Deck:", value = 15, min = 0, step = 1),
+      numericInput("n", "Cards to Draw:", value = 8, min = 1, step = 1),
+      numericInput("k", "Desired Hits:", value = 3, min = 0, step = 1)
     ),
 
-    # --- NEW PROMINENT RUN BUTTON ---
     actionButton(
       inputId = "run_calc",
-      label = "Run Calculation",
+      label = "Calculate Odds",
       class = "btn-run"
     ),
 
@@ -44,9 +26,11 @@ hypergeometric_inputs <- function() {
       class = "formula-box",
       p(
         style = "font-weight: 500; margin-bottom: 8px;",
-        "Probability Mass Function:"
+        "Hypergeometric Probability Formula:"
       ),
-      p("$$P(X = x) = \\frac{\\binom{K}{x}\\binom{N-K}{n-x}}{\\binom{N}{n}}$$")
+      p(
+        "$$P(X = x) = \\frac{\\binom{\\text{Targets}}{\\text{Hits}}\\binom{\\text{Deck} - \\text{Targets}}{\\text{Draw} - \\text{Hits}}}{\\binom{\\text{Deck}}{\\text{Draw}}}$$"
+      )
     )
   )
 }

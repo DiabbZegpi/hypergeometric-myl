@@ -1,6 +1,5 @@
 library(shiny)
 
-# Import the specific layout components
 source("components/inputs.R")
 source("components/outputs.R")
 source("components/plot.R")
@@ -8,15 +7,16 @@ source("components/css_styles.R")
 
 ui <- fluidPage(
   minimal_css(),
-  titlePanel("Hypergeometric Probability Calculator"),
+
+  titlePanel("TCG Probability & Deck Simulator"), # Re-themed title text
 
   sidebarLayout(
     sidebarPanel(
-      hypergeometric_inputs() # Calling our input component
+      hypergeometric_inputs()
     ),
 
     mainPanel(
-      hypergeometric_outputs(), # Calling our output component
+      hypergeometric_outputs(),
       hr(),
       hypergeometric_plot()
     )
