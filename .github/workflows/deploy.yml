@@ -33,7 +33,7 @@ jobs:
         run: |
           Rscript -e "install.packages('shinylive')"
 
-            - name: Convert Shiny App to Static Files
+      - name: Convert Shiny App to Static Files
         run: |
           Rscript -e "
             img_data <- base64enc::base64encode('R/logo.png')
