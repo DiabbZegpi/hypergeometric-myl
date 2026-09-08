@@ -33,9 +33,16 @@ jobs:
         run: |
           Rscript -e "install.packages('shinylive')"
 
-      - name: Convert Shiny App to Static Files
+            - name: Convert Shiny App to Static Files
         run: |
-          Rscript -e "shinylive::export('R', 'site')"
+          Rscript -e "
+            img_data <- base64enc::base64encode('R/logo.png')
+            favicon_html <- paste0('<link rel=\"icon\" type=\"image/png\" href=\"data:image/png;base64,', img_data, '\">')
+            shinylive::export('R', 'site', include_in_head = favicon_html)
+          "
+          # --- FIXED: Forcibly injects all your downloaded local PNG logos straight into the web root ---
+          cp R/*.png site/
+
 
       - name: Setup Pages
         uses: actions/configure-pages@v5   # Upgraded to native Node 24 support

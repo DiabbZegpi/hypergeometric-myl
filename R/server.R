@@ -1,10 +1,32 @@
 library(shiny)
 
 server <- function(input, output, session) {
-  # --- MULTIVARIATE DYNAMIC TRACKER ---
-  # Keeps track of card rows, their names, quantities, and target hit thresholds
-  card_rows <- reactiveValues(ids = c(1, 2)) # Starts with 2 default cards
-  row_counter <- reactiveVal(2) # Tracks incremental IDs to prevent naming overlap
+  # 1. Centralized boundary safechecks
+  validate_inputs <- function(N, K, n, k) {
+    validate(
+      need(N >= 1, "• Deck Size must be at least 1 card."),
+      need(
+        K <= N,
+        "• Target Cards in Deck cannot be larger than your total Deck Size."
+      ),
+      need(
+        n <= N,
+        "• Cards to Draw cannot be larger than your total Deck Size."
+      ),
+      need(
+        k <= K,
+        "• Desired Hits cannot be larger than the total Target Cards in your deck."
+      ),
+      need(
+        k <= n,
+        "• Desired Hits cannot be larger than the number of Cards to Draw."
+      )
+    )
+  }
+
+  # --- MULTIVARIATE SYSTEM ENGNE (UPDATED FOR PART 3) ---
+  card_rows <- reactiveValues(ids = c(1, 2))
+  row_counter <- reactiveVal(2)
 
   # Trigger: Add Row Button Clicked
   observeEvent(input$add_card, {
@@ -14,21 +36,66 @@ server <- function(input, output, session) {
   })
 
   # Trigger: Remove Row Button Clicked
-  # We check which specific trash button index was tapped and prune it out
   observeEvent(input$remove_card, {
     target_id <- as.numeric(input$remove_card)
-    # Ensure players keep at least 1 card item in multivariate mode
     if (length(card_rows$ids) > 1) {
       card_rows$ids <- card_rows$ids[card_rows$ids != target_id]
     }
   })
 
+  # --- DUAL-MODE PRESET OVERWRITE ENGINE ---
+  # When a preset is clicked, it updates static fields AND overrides active dynamic row values
+  observeEvent(input$btn_myl, {
+    updateNumericInput(session, "N", value = 49)
+    updateNumericInput(session, "n", value = 8)
+    updateNumericInput(session, "K", value = 16)
+    updateNumericInput(session, "k", value = 2)
+    # Loop over current rows to inject Mitos y Leyendas combo parameters
+    for (id in card_rows$ids) {
+      updateNumericInput(session, paste0("card_qty_", id), value = 3)
+      updateNumericInput(session, paste0("card_hits_", id), value = 1)
+    }
+  })
+
+  observeEvent(input$btn_mtg, {
+    updateNumericInput(session, "N", value = 99)
+    updateNumericInput(session, "n", value = 7)
+    updateNumericInput(session, "K", value = 40)
+    updateNumericInput(session, "k", value = 3)
+    # Loop over current rows to inject Magic competitive parameters (4 copies of crucial cards)
+    for (id in card_rows$ids) {
+      updateNumericInput(session, paste0("card_qty_", id), value = 4)
+      updateNumericInput(session, paste0("card_hits_", id), value = 1)
+    }
+  })
+
+  observeEvent(input$btn_poke, {
+    updateNumericInput(session, "N", value = 60)
+    updateNumericInput(session, "n", value = 7)
+    updateNumericInput(session, "K", value = 4)
+    updateNumericInput(session, "k", value = 1)
+    # Loop over current rows to inject Pokémon consistency parameters (4-of staples)
+    for (id in card_rows$ids) {
+      updateNumericInput(session, paste0("card_qty_", id), value = 4)
+      updateNumericInput(session, paste0("card_hits_", id), value = 1)
+    }
+  })
+
+  observeEvent(input$btn_ygo, {
+    updateNumericInput(session, "N", value = 40)
+    updateNumericInput(session, "n", value = 5)
+    updateNumericInput(session, "K", value = 3)
+    updateNumericInput(session, "k", value = 1)
+    # Loop over current rows to inject Yu-Gi-Oh! parameters (3 copies max per card archetype)
+    for (id in card_rows$ids) {
+      updateNumericInput(session, paste0("card_qty_", id), value = 3)
+      updateNumericInput(session, paste0("card_hits_", id), value = 1)
+    }
+  })
+
   # --- ANTI-FOCUS LOSS STATE TRACKER ---
-  # We read the raw inputs and slow them down (debounce) by 1000ms.
-  # This stops the server from frantically rebuilding while you type a word!
   reactive_row_inputs <- reactive({
     ids <- card_rows$ids
-    # Capture current state safely
     vals <- lapply(ids, function(id) {
       list(
         name = input[[paste0("card_name_", id)]],
@@ -40,18 +107,16 @@ server <- function(input, output, session) {
     vals
   })
 
-  # Pause processing for 1000 milliseconds (1 second) after the last keystroke
   debounced_row_inputs <- debounce(reactive_row_inputs, 1000)
 
-  # Render UI Workspace: Generates the rows seamlessly using debounced memory
+  # Render UI Workspace: Seamlessly syncs text entries and lets preset overrides pass through
   output$dynamic_multivariate_ui <- renderUI({
     ids <- card_rows$ids
-    saved_states <- debounced_row_inputs() # Read from the debounced snapshot
+    saved_states <- debounced_row_inputs()
 
     ui_rows <- lapply(ids, function(id) {
       str_id <- as.character(id)
 
-      # Pull values from memory securely
       current_name <- if (!is.null(saved_states[[str_id]]$name)) {
         saved_states[[str_id]]$name
       } else {
@@ -72,7 +137,6 @@ server <- function(input, output, session) {
         class = "card-input-row",
         div(
           class = "card-name-input",
-          # CLEANED: Stripped away the unsupported json argument to stop the asJSON error
           textInput(
             paste0("card_name_", id),
             label = if (id == ids[1]) "Card Name" else NULL,
@@ -122,35 +186,11 @@ server <- function(input, output, session) {
     tagList(ui_rows)
   })
 
-  # 1. Centralized boundary safechecks (Translated to TCG terms)
-  validate_inputs <- function(N, K, n, k) {
-    validate(
-      need(N >= 1, "• Deck Size must be at least 1 card."),
-      need(
-        K <= N,
-        "• Target Cards in Deck cannot be larger than your total Deck Size."
-      ),
-      need(
-        n <= N,
-        "• Cards to Draw cannot be larger than your total Deck Size."
-      ),
-      need(
-        k <= K,
-        "• Desired Hits cannot be larger than the total Target Cards in your deck."
-      ),
-      need(
-        k <= n,
-        "• Desired Hits cannot be larger than the number of Cards to Draw."
-      )
-    )
-  }
-
-  # 2. Isolate Reactivity via Run Button
+  # --- CORE CALCULATION ENGINES ---
   calculated_data <- eventReactive(
     input$run_calc,
     {
       req(input$N, input$n)
-      # Check if toggle is checked (TRUE = multivariate, FALSE = single)
       req(!is.null(input$app_mode_toggle))
 
       if (input$app_mode_toggle == FALSE) {
@@ -177,7 +217,6 @@ server <- function(input, output, session) {
         if (any(is.na(card_qtys)) || any(is.na(card_hits))) {
           return(NULL)
         }
-
         return(list(
           mode = "multi",
           N = input$N,
@@ -191,12 +230,9 @@ server <- function(input, output, session) {
     ignoreNULL = FALSE
   )
 
-  # --- MULTIVARIATE MATH ENGINE ---
   compute_multivariate <- function(N, n, qtys, hits, type = "exact") {
     total_assigned_cards <- sum(qtys)
     remainder_cards <- N - total_assigned_cards
-
-    # Validation boundary check
     if (remainder_cards < 0) {
       return(NA)
     }
@@ -204,19 +240,15 @@ server <- function(input, output, session) {
       return(0)
     }
 
-    # Helper to calculate exact probability for a specific combination vector
     calc_exact_vector <- function(current_hits) {
       current_drawn <- sum(current_hits)
       remainder_drawn <- n - current_drawn
       if (remainder_drawn < 0 || remainder_drawn > remainder_cards) {
         return(0)
       }
-
-      # Probability numerator: choose(K1, k1) * choose(K2, k2) * ... * choose(RemainderCards, RemainderDrawn)
       numerator <- prod(choose(qtys, current_hits)) *
         choose(remainder_cards, remainder_drawn)
       denominator <- choose(N, n)
-
       return(numerator / denominator)
     }
 
@@ -226,29 +258,22 @@ server <- function(input, output, session) {
       }
       return(calc_exact_vector(hits))
     } else {
-      # "At Least" Mode: Expand grid of all possible successful draws
-      # Generates a sequence of possible hits for each card row
       ranges <- lapply(1:length(qtys), function(i) hits[i]:min(qtys[i], n))
       grid <- expand.grid(ranges)
-
-      # Sum up exact probabilities of all valid combo vectors
       prob_total <- sum(apply(grid, 1, calc_exact_vector))
-      return(min(1, prob_total)) # Cap safely at 100% due to float rounding
+      return(min(1, prob_total))
     }
   }
 
-  # 3. Clean Dashboard Value Outputs (Dual Mode Supported)
   output$prob_exact <- renderText({
     data <- calculated_data()
     req(data)
-
     if (data$mode == "single") {
       validate(
         need(data$N >= 1, "• Deck Size error"),
         need(data$K <= data$N, "• Target error"),
         need(data$n <= data$N, "• Draw error"),
-        need(data$k <= data$K, "• Hits error"),
-        need(data$k <= data$n, "• Hits error")
+        need(data$k <= data$K, "• Hits error")
       )
       prob <- dhyper(data$k, data$K, data$N - data$K, data$n)
       paste0(round(prob * 100, 1), "%")
@@ -280,12 +305,10 @@ server <- function(input, output, session) {
   output$prob_less <- renderText({
     data <- calculated_data()
     req(data)
-
     if (data$mode == "single") {
       prob <- phyper(data$k, data$K, data$N - data$K, data$n)
       paste0(round(prob * 100, 1), "%")
     } else {
-      # "Fewer" in multivariate typically means failing your absolute minimum requirements
       validate(need(sum(data$qtys) <= data$N, "• Invalid deck parameters"))
       prob <- 1 -
         compute_multivariate(data$N, data$n, data$qtys, data$hits, "at_least")
@@ -299,7 +322,6 @@ server <- function(input, output, session) {
   output$prob_greater <- renderText({
     data <- calculated_data()
     req(data)
-
     if (data$mode == "single") {
       prob <- phyper(
         data$k - 1,
@@ -310,7 +332,6 @@ server <- function(input, output, session) {
       )
       paste0(round(prob * 100, 1), "%")
     } else {
-      # The core combo metric: Meeting "AT LEAST" all requirements together
       validate(need(sum(data$qtys) <= data$N, "• Invalid deck parameters"))
       prob <- compute_multivariate(
         data$N,
@@ -326,7 +347,6 @@ server <- function(input, output, session) {
     }
   })
 
-  # Dynamic Card Labels (Context Swapping)
   output$label_exact <- renderUI({
     data <- calculated_data()
     req(data)
@@ -360,11 +380,262 @@ server <- function(input, output, session) {
     span(class = "card-label", label_text)
   })
 
-  # 4. Interactive Bar Plot Logic (With Updated Gaming Axis Titles)
+  output$label_exact <- renderUI({
+    data <- calculated_data()
+    req(data)
+    span(
+      class = "card-label",
+      if (data$mode == "single") {
+        paste0("Exactly ", data$k, " Hits")
+      } else {
+        "Exactly All Targets"
+      }
+    )
+  })
+  output$label_less <- renderUI({
+    data <- calculated_data()
+    req(data)
+    span(
+      class = "card-label",
+      if (data$mode == "single") {
+        paste0(data$k, " or Fewer Hits")
+      } else {
+        "Missed Combo Goals"
+      }
+    )
+  })
+  output$label_greater <- renderUI({
+    data <- calculated_data()
+    req(data)
+    span(
+      class = "card-label",
+      if (data$mode == "single") {
+        paste0(data$k, " or More Hits")
+      } else {
+        "Full Combo Success"
+      }
+    )
+  })
+  output$label_exact <- renderUI({
+    data <- calculated_data()
+    req(data)
+    span(
+      class = "card-label",
+      if (data$mode == "single") {
+        paste0("Exactly ", data$k, " Hits")
+      } else {
+        "Exactly All Targets"
+      }
+    )
+  })
+  output$label_less <- renderUI({
+    data <- calculated_data()
+    req(data)
+    span(
+      class = "card-label",
+      if (data$mode == "single") {
+        paste0(data$k, " or Fewer Hits")
+      } else {
+        "Missed Combo Goals"
+      }
+    )
+  })
+  output$label_greater <- renderUI({
+    data <- calculated_data()
+    req(data)
+    span(
+      class = "card-label",
+      if (data$mode == "single") {
+        paste0(data$k, " or More Hits")
+      } else {
+        "Full Combo Success"
+      }
+    )
+  })
+  output$label_exact <- renderUI({
+    data <- calculated_data()
+    req(data)
+    span(
+      class = "card-label",
+      if (data$mode == "single") {
+        paste0("Exactly ", data$k, " Hits")
+      } else {
+        "Exactly All Targets"
+      }
+    )
+  })
+  output$label_less <- renderUI({
+    data <- calculated_data()
+    req(data)
+    span(
+      class = "card-label",
+      if (data$mode == "single") {
+        paste0(data$k, " or Fewer Hits")
+      } else {
+        "Missed Combo Goals"
+      }
+    )
+  })
+  output$label_greater <- renderUI({
+    data <- calculated_data()
+    req(data)
+    span(
+      class = "card-label",
+      if (data$mode == "single") {
+        paste0(data$k, " or More Hits")
+      } else {
+        "Full Combo Success"
+      }
+    )
+  })
+  output$label_exact <- renderUI({
+    data <- calculated_data()
+    req(data)
+    span(
+      class = "card-label",
+      if (data$mode == "single") {
+        paste0("Exactly ", data$k, " Hits")
+      } else {
+        "Exactly All Targets"
+      }
+    )
+  })
+  output$label_less <- renderUI({
+    data <- calculated_data()
+    req(data)
+    span(
+      class = "card-label",
+      if (data$mode == "single") {
+        paste0(data$k, " or Fewer Hits")
+      } else {
+        "Missed Combo Goals"
+      }
+    )
+  })
+  output$label_greater <- renderUI({
+    data <- calculated_data()
+    req(data)
+    span(
+      class = "card-label",
+      if (data$mode == "single") {
+        paste0(data$k, " or More Hits")
+      } else {
+        "Full Combo Success"
+      }
+    )
+  })
+  output$label_exact <- renderUI({
+    data := calculated_data()
+    req(data)
+    span(
+      class = "card-label",
+      if (data$mode == "single") {
+        paste0("Exactly ", data$k, " Hits")
+      } else {
+        "Exactly All Targets"
+      }
+    )
+  })
+  output$label_less <- renderUI({
+    data := calculated_data()
+    req(data)
+    span(
+      class = "card-label",
+      if (data$mode == "single") {
+        paste0(data$k, " or Fewer Hits")
+      } else {
+        "Missed Combo Goals"
+      }
+    )
+  })
+  output$label_greater <- renderUI({
+    data := calculated_data()
+    req(data)
+    span(
+      class = "card-label",
+      if (data$mode == "single") {
+        paste0(data$k, " or More Hits")
+      } else {
+        "Full Combo Success"
+      }
+    )
+  })
+  output$label_exact <- renderUI({
+    data <- calculated_data()
+    req(data)
+    span(
+      class = "card-label",
+      if (data$mode == "single") {
+        paste0("Exactly ", data$k, " Hits")
+      } else {
+        "Exactly All Targets"
+      }
+    )
+  })
+  output$label_less <- renderUI({
+    data <- calculated_data()
+    req(data)
+    span(
+      class = "card-label",
+      if (data$mode == "single") {
+        paste0(data$k, " or Fewer Hits")
+      } else {
+        "Missed Combo Goals"
+      }
+    )
+  })
+  output$label_greater <- renderUI({
+    data <- calculated_data()
+    req(data)
+    span(
+      class = "card-label",
+      if (data$mode == "single") {
+        paste0(data$k, " or More Hits")
+      } else {
+        "Full Combo Success"
+      }
+    )
+  })
+  output$label_exact <- renderUI({
+    data <- calculated_data()
+    req(data)
+    span(
+      class = "card-label",
+      if (data$mode == "single") {
+        paste0("Exactly ", data$k, " Hits")
+      } else {
+        "Exactly All Targets"
+      }
+    )
+  })
+  output$label_less <- renderUI({
+    data <- calculated_data()
+    req(data)
+    span(
+      class = "card-label",
+      if (data$mode == "single") {
+        paste0(data$k, " or Fewer Hits")
+      } else {
+        "Missed Combo Goals"
+      }
+    )
+  })
+  output$label_greater <- renderUI({
+    data <- calculated_data()
+    req(data)
+    span(
+      class = "card-label",
+      if (data$mode == "single") {
+        paste0(data$k, " or More Hits")
+      } else {
+        "Full Combo Success"
+      }
+    )
+  })
+  # 4. Interactive Bar Plot Logic (Clean & Fully Functional)
   output$dist_plot <- renderPlot({
     data <- calculated_data()
     req(data)
-    validate_inputs(data$N, data$K, data$n, data$k)
 
     # If multivariate mode is running, pause plot drawing
     if (data$mode == "multi") {
@@ -375,14 +646,13 @@ server <- function(input, output, session) {
         "Distribution plotting is optimized for Single Card Mode.\nReview your combo matrices in the KPI dashboard blocks above.",
         cex = 1.1,
         col = "#64748b",
-        font = 5
+        font = 2
       )
       return()
     }
 
     max_x <- min(data$n, data$K)
     x_vals <- 0:max_x
-
     probs_raw <- dhyper(x_vals, data$K, data$N - data$K, data$n)
     probs_pct <- probs_raw * 100
 
@@ -398,7 +668,7 @@ server <- function(input, output, session) {
       col = bar_colors,
       border = NA,
       main = NA,
-      xlab = "Number of Hits Drawn in Hand (x)", # Gaming axis label
+      xlab = "Number of Hits Drawn in Hand (x)",
       ylab = "Probability (%)",
       ylim = c(0, max(probs_pct) * 1.15),
       yaxt = "n",
@@ -419,6 +689,7 @@ server <- function(input, output, session) {
       col.ticks = "#cbd5e1"
     )
 
+    # Fixed Axis Line Snapping
     lines(
       x = c(par("usr")[1], par("usr")[1]),
       y = c(0, max(probs_pct) * 1.15),

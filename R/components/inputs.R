@@ -5,25 +5,53 @@ hypergeometric_inputs <- function() {
     only_positive_integers_js(),
     withMathJax(),
 
-    # 1. NEW: Modern Pill Switch Toggle
-    tags$div(
+    # 1. Capsule Mode Selector Switch
+    div(
       class = "mode-switch-wrapper",
       tags$span(class = "switch-label left-label", "Single Card"),
       tags$label(
         class = "switch-container",
-        # We use a standard checkbox but handle its state value in R/JS
         checkboxInput("app_mode_toggle", label = NULL, value = FALSE)
       ),
       tags$span(class = "switch-label right-label", "Combo (Multivariate)")
     ),
 
+    # 2. Premium Official Brand Logo TCG Presets Group
+    div(
+      class = "preset-container",
+      span(class = "preset-label", "Select Game Profile:"),
+      div(
+        class = "preset-btn-group",
+        actionButton(
+          "btn_myl",
+          label = tags$img(src = "myl.png", alt = "Mitos y Leyendas"),
+          class = "btn-preset"
+        ),
+        actionButton(
+          "btn_mtg",
+          label = tags$img(src = "mtg.png", alt = "Magic"),
+          class = "btn-preset"
+        ),
+        actionButton(
+          "btn_poke",
+          label = tags$img(src = "pokemon.png", alt = "Pokémon"),
+          class = "btn-preset"
+        ),
+        actionButton(
+          "btn_ygo",
+          label = tags$img(src = "yugioh.png", alt = "Yu-Gi-Oh"),
+          class = "btn-preset"
+        )
+      )
+    ),
+
     hr(),
 
-    # 2. Shared Global Inputs
+    # 3. Global Shared Parameters (Initialized to Mitos y Leyendas defaults!)
     numericInput("N", "Total Deck Size:", value = 49, min = 1, step = 1),
     numericInput("n", "Cards to Draw:", value = 8, min = 1, step = 1),
 
-    # 3. Conditional Interface Wrapper (Updated conditions to read our true/false toggle state)
+    # 4. Single Mode Settings (Initialized to Mitos y Leyendas defaults!)
     conditionalPanel(
       condition = "input.app_mode_toggle == false",
       tags$div(
@@ -31,17 +59,17 @@ hypergeometric_inputs <- function() {
         numericInput(
           "K",
           "Target Cards in Deck:",
-          value = 15,
+          value = 16,
           min = 0,
           step = 1
         ),
-        numericInput("k", "Desired Hits:", value = 3, min = 0, step = 1)
+        numericInput("k", "Desired Hits:", value = 2, min = 0, step = 1)
       )
     ),
 
+    # 5. Multivariate Mode Settings Panel
     conditionalPanel(
       condition = "input.app_mode_toggle == true",
-      # Changed class wrapper to 'multivariate-panel' so JS doesn't lock the whole thing
       tags$div(
         class = "multivariate-panel",
         uiOutput("dynamic_multivariate_ui")
@@ -68,7 +96,7 @@ hypergeometric_inputs <- function() {
 
     br(),
 
-    # 4. Master Execution Button
+    # 6. Isolated Main Calculate Button
     actionButton(
       inputId = "run_calc",
       label = "Calculate Odds",
@@ -77,7 +105,7 @@ hypergeometric_inputs <- function() {
 
     hr(),
 
-    # Formula Box
+    # Formula Display Section
     conditionalPanel(
       condition = "input.app_mode_toggle == false",
       tags$div(
