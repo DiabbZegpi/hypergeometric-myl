@@ -1,39 +1,52 @@
-# Import our new JS blocker helper
 source("components/js_helpers.R")
 
-# Component: User Input Fields restricted at the browser level
 hypergeometric_inputs <- function() {
   tagList(
-    # Inject the JavaScript filter into the page
     only_positive_integers_js(),
+    withMathJax(),
 
-    # Wrap inputs in a div container that activates our JavaScript lock
     tags$div(
       class = "only-pos-int",
       numericInput(
         "N",
         "Total Population Size (N):",
-        value = 49,
+        value = 100,
         min = 1,
         step = 1
       ),
       numericInput(
         "K",
         "Successes in Population (K):",
-        value = 15,
+        value = 20,
         min = 0,
         step = 1
       ),
-      numericInput("n", "Sample Size (n):", value = 8, min = 1, step = 1),
+      numericInput("n", "Sample Size (n):", value = 10, min = 1, step = 1),
       numericInput(
         "k",
         "Successes in Sample (x):",
-        value = 1,
+        value = 3,
         min = 0,
         step = 1
       )
     ),
+
+    # --- NEW PROMINENT RUN BUTTON ---
+    actionButton(
+      inputId = "run_calc",
+      label = "Run Calculation",
+      class = "btn-run"
+    ),
+
     hr(),
-    p("Formula used: dhyper(x, K, N - K, n)")
+
+    tags$div(
+      class = "formula-box",
+      p(
+        style = "font-weight: 500; margin-bottom: 8px;",
+        "Probability Mass Function:"
+      ),
+      p("$$P(X = x) = \\frac{\\binom{K}{x}\\binom{N-K}{n-x}}{\\binom{N}{n}}$$")
+    )
   )
 }
