@@ -3,6 +3,7 @@ library(shiny)
 # Import the specific layout components
 source("components/inputs.R")
 source("components/outputs.R")
+source("components/plot.R")
 
 ui <- fluidPage(
   titlePanel("Hypergeometric Probability Calculator"),
@@ -13,7 +14,9 @@ ui <- fluidPage(
     ),
 
     mainPanel(
-      hypergeometric_outputs() # Calling our output component
+      hypergeometric_outputs(), # Calling our output component
+      hr(),
+      hypergeometric_plot()
     )
   )
 )
