@@ -41,15 +41,15 @@ jobs:
       - name: Convert Shiny App to Static Files
         run: |
           Rscript -e "
-            # Inject standard relative link pointing straight to the flat logo file
+            # Points your browser tab icon to the clean root-level file
             favicon_html <- '<link rel=\"icon\" type=\"image/png\" href=\"logo.png\">'
-            
-            # Execute the serverless export using the natively installed packages
             shinylive::export('R', 'site', include_in_head = favicon_html)
           "
-          # Build subdirectories and copy all assets into place
-          mkdir -p site/assets
-          cp R/*.png site/assets/
+          # FIXED: Creates a matching 'img/' folder on the live website
+          mkdir -p site/img
+          cp R/*.png site/img/
+          
+          # Keeps a copy of logo.png at the root strictly for the browser tab icon
           cp R/logo.png site/
 
       - name: Setup Pages
