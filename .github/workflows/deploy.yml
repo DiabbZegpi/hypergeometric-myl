@@ -22,41 +22,37 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4.2.2  # Updated to explicitly support modern Node runners
+        uses: actions/checkout@v4.2.2  # Native Node 24 support clears the warning
 
       - name: Setup R
         uses: r-lib/actions/setup-r@v2
         with:
-          use-public-rspm: true
+          use-public-rspm: true # Enables ultra-fast binary package installations
 
-      - name: Install Shinylive Package
+      - name: Install System Dependencies for Base64 and Shinylive
         run: |
-          Rscript -e "install.packages('shinylive')"
+          # Pull pre-compiled binaries from Posit manager so installation never fails
+          Rscript -e "install.packages('base64enc', repos='https://posit.co')"
+          Rscript -e "install.packages('shinylive', repos='https://posit.co')"
 
       - name: Convert Shiny App to Static Files
         run: |
           Rscript -e "
-            # 1. Install the missing package directly inside the runner environment
-            install.packages('base64enc')
-            
-            # 2. Inject a standard relative link pointing straight to the flat logo file
+            # Inject standard relative link pointing straight to the flat logo file
             favicon_html <- '<link rel=\"icon\" type=\"image/png\" href=\"logo.png\">'
-            
-            # 3. Export the application while placing the favicon link into the master HTML template
             shinylive::export('R', 'site', include_in_head = favicon_html)
           "
-          
-          # 4. Create the asset subdirectory for your game logo profiles
+          # Create the asset subdirectory for your game logo profiles
           mkdir -p site/assets
           
-          # 5. Copy all dynamic PNG brand logos into the asset subfolder
+          # Copy all dynamic PNG brand logos into the asset subfolder
           cp R/*.png site/assets/
           
-          # 6. Copy the main browser tab icon directly into the root web folder
+          # Copy the main browser tab icon directly into the root web folder
           cp R/logo.png site/
 
       - name: Setup Pages
-        uses: actions/configure-pages@v5   # Upgraded to native Node 24 support
+        uses: actions/configure-pages@v5   # Native Node 24 support clears the warning
 
       - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v3
