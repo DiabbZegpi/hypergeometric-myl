@@ -22,37 +22,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4.2.2  # Native Node 24 support clears the warning
+        uses: actions/checkout@v4.2.2
 
       - name: Setup R
         uses: r-lib/actions/setup-r@v2
         with:
-          use-public-rspm: true # Enables ultra-fast binary package installations
-
-      - name: Install System Dependencies for Base64 and Shinylive
-        run: |
-          # Pull pre-compiled binaries from Posit manager so installation never fails
-          Rscript -e "install.packages('base64enc', repos='https://posit.co')"
-          Rscript -e "install.packages('shinylive', repos='https://posit.co')"
+          use-public-rspm: true
 
       - name: Convert Shiny App to Static Files
         run: |
           Rscript -e "
-            # Inject standard relative link pointing straight to the flat logo file
+            # 1. Install dependencies using fast pre-compiled binaries inside the active block
+            install.packages('base64enc', repos='https://posit.co')
+            install.packages('shinylive', repos='https://posit.co')
+            
+            # 2. Inject standard relative link pointing straight to the flat logo file
             favicon_html <- '<link rel=\"icon\" type=\"image/png\" href=\"logo.png\">'
+            
+            # 3. Execute the serverless export with the native packages now fully visible
             shinylive::export('R', 'site', include_in_head = favicon_html)
           "
-          # Create the asset subdirectory for your game logo profiles
+          # 4. Build subdirectories and copy assets
           mkdir -p site/assets
-          
-          # Copy all dynamic PNG brand logos into the asset subfolder
           cp R/*.png site/assets/
-          
-          # Copy the main browser tab icon directly into the root web folder
           cp R/logo.png site/
 
       - name: Setup Pages
-        uses: actions/configure-pages@v5   # Native Node 24 support clears the warning
+        uses: actions/configure-pages@v5
 
       - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v3
