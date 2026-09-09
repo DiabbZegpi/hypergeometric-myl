@@ -16,31 +16,31 @@ hypergeometric_inputs <- function() {
       tags$span(class = "switch-label right-label", "Combo (Multivariate)")
     ),
 
-    # 2. Premium Official Brand Logo TCG Presets Group (Fixed Secure Paths)
+    # 2. Premium Official Brand Logo TCG Presets Group (Native Asset Routing)
     div(
       class = "preset-container",
       span(class = "preset-label", "Select Game Profile:"),
       div(
         class = "preset-btn-group",
-        # Updated to use the secure "img/" prefix!
+        # Pointing straight to the standard 'www/' folder asset channels
         actionButton(
           "btn_myl",
-          label = tags$img(src = "img/myl.png", alt = "Mitos y Leyendas"),
+          label = tags$img(src = "www/myl.png", alt = "Mitos y Leyendas"),
           class = "btn-preset"
         ),
         actionButton(
           "btn_mtg",
-          label = tags$img(src = "img/mtg.png", alt = "Magic"),
+          label = tags$img(src = "www/mtg.png", alt = "Magic"),
           class = "btn-preset"
         ),
         actionButton(
           "btn_poke",
-          label = tags$img(src = "img/pokemon.png", alt = "Pokémon"),
+          label = tags$img(src = "www/pokemon.png", alt = "Pokémon"),
           class = "btn-preset"
         ),
         actionButton(
           "btn_ygo",
-          label = tags$img(src = "img/yugioh.png", alt = "Yu-Gi-Oh"),
+          label = tags$img(src = "www/yugioh.png", alt = "Yu-Gi-Oh"),
           class = "btn-preset"
         )
       )

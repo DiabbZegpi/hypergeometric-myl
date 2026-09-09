@@ -1,8 +1,6 @@
 library(shiny)
 
-# FIXED: Uses a valid name 'img' to create a secure local path bridge
-shiny::addResourcePath(prefix = "img", directoryPath = ".")
-
+# (The addResourcePath bridge has been removed since 'www' works natively everywhere!)
 source("ui.R")
 source("server.R")
 
