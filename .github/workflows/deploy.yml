@@ -36,16 +36,24 @@ jobs:
       - name: Convert Shiny App to Static Files
         run: |
           Rscript -e "
+            # 1. Install the missing package directly inside the runner environment
             install.packages('base64enc')
-            img_data <- base64enc::base64encode('R/logo.png')
-            favicon_html <- paste0('<link rel=\"icon\" type=\"image/png\" href=\"data:image/png;base64,', img_data, '\">')
+            
+            # 2. Inject a standard relative link pointing straight to the flat logo file
+            favicon_html <- '<link rel=\"icon\" type=\"image/png\" href=\"logo.png\">'
+            
+            # 3. Export the application while placing the favicon link into the master HTML template
             shinylive::export('R', 'site', include_in_head = favicon_html)
           "
-          # --- FIXED: Creates the matching asset folder on your live serverless website directory ---
+          
+          # 4. Create the asset subdirectory for your game logo profiles
           mkdir -p site/assets
+          
+          # 5. Copy all dynamic PNG brand logos into the asset subfolder
           cp R/*.png site/assets/
-
-
+          
+          # 6. Copy the main browser tab icon directly into the root web folder
+          cp R/logo.png site/
 
       - name: Setup Pages
         uses: actions/configure-pages@v5   # Upgraded to native Node 24 support
