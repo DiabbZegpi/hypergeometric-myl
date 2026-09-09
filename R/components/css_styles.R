@@ -184,9 +184,9 @@ minimal_css <- function() {
       .btn-run:hover { background-color: #4338ca !important; }
       .btn-run:active { transform: scale(0.98) !important; }
 
-         /* --- PREMIUM MINIMALIST BRAND LOGO TOGGLES --- */
+      /* --- PREMIUM TYPOGRAPHY DASHBOARD PRESETS --- */
       .preset-container {
-        margin-bottom: 24px;
+        margin-bottom: 22px;
       }
       .preset-label {
         font-family: 'Plus Jakarta Sans', sans-serif !important;
@@ -195,41 +195,68 @@ minimal_css <- function() {
         letter-spacing: 0.05em;
         font-weight: 700;
         color: #64748b;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
         display: block;
       }
       .preset-btn-group {
         display: flex;
-        gap: 12px;
+        gap: 8px;
         flex-wrap: wrap;
         align-items: center;
       }
       
-      /* Turn the heavy boxed buttons into flat, elegant floating targets */
+      /* Smooth, borderless card capsules */
       .btn-preset {
-        background-color: transparent !important; /* Strips out the box background */
-        border: none !important;                  /* Strips out the box border outline */
-        padding: 4px 8px !important;              /* Tightens padding spacing layout */
-        border-radius: 6px !important;
+        background-color: transparent !important;
+        border: none !important;
+        padding: 0 !important; /* Strips spacing so padding is handled by the badge itself */
         cursor: pointer;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         height: auto !important;
-        width: auto !important; /* Lets each logo occupy its natural fluid width scale */
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        box-shadow: none !important;
+        width: auto !important;
+        transition: transform 0.15s ease !important;
       }
       
-      /* Subtle micro-animations for floating interaction feedback */
       .btn-preset:hover {
-        background-color: rgba(226, 232, 240, 0.4) !important; /* Smooth transparent background pill hover */
-        transform: translateY(-2px);
+        transform: translateY(-1px);
+      }
+      .btn-preset:active {
+        transform: scale(0.97);
       }
       
-      .btn-preset:active {
-        transform: translateY(0px) scale(0.95);
+      /* --- UNIVERSAL BADGE TYPOGRAPHY DESIGN --- */
+      .badge-txt {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-size: 11.5px !important;
+        font-weight: 700 !important;
+        padding: 8px 14px !important;
+        border-radius: 20px !important; /* Modern pill capsule */
+        display: block;
+        text-align: center;
+        min-width: 105px;
+        border: 1px solid transparent;
+        transition: all 0.2s ease-in-out;
       }
+      
+      /* Re-theming the specific TCG profile palettes cleanly */
+      /* Mitos y Leyendas (Gold/Amber theme) */
+      .b-myl { background-color: #fef08a; color: #713f12; border-color: #fde047; }
+      .b-myl:hover { background-color: #fde047; }
+      
+      /* Magic The Gathering (Slate theme) */
+      .b-mtg { background-color: #e2e8f0; color: #334155; border-color: #cbd5e1; }
+      .b-mtg:hover { background-color: #cbd5e1; }
+      
+      /* Pokémon TCG (Soft Blue theme) */
+      .b-poke { background-color: #e0f2fe; color: #0369a1; border-color: #bae6fd; }
+      .b-poke:hover { background-color: #bae6fd; }
+      
+      /* Yu-Gi-Oh! (Soft Indigo theme) */
+      .b-ygo { background-color: #e0e7ff; color: #3730a3; border-color: #c7d2fe; }
+      .b-ygo:hover { background-color: #c7d2fe; }
+      
       
       /* --- ENLARGED IMAGE PROPERTIES --- */
       .btn-preset img {

@@ -41,13 +41,10 @@ jobs:
       - name: Convert Shiny App to Static Files
         run: |
           Rscript -e "
-            # Tell the exporter to expect the favicon right at the main webpage root
-            favicon_html <- '<link rel=\"icon\" type=\"image/png\" href=\"logo.png\">'
+            # Set up deployment dependencies natively
+            favicon_html <- '<link rel=\"icon\" type=\"image/png\" href=\"https://wikimedia.org\">'
             shinylive::export('R', 'site', include_in_head = favicon_html)
           "
-          
-          # FIXED: Copies the main browser tab icon directly into the root web folder
-          cp R/www/logo.png site/
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

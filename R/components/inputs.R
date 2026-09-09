@@ -16,31 +16,31 @@ hypergeometric_inputs <- function() {
       tags$span(class = "switch-label right-label", "Combo (Multivariate)")
     ),
 
-    # 2. Premium Official Brand Logo TCG Presets Group (Native Asset Routing)
+    # 2. FIXED: Pure Typography TCG Presets Group (No Images, Unbreakable)
     div(
       class = "preset-container",
       span(class = "preset-label", "Select Game Profile:"),
       div(
         class = "preset-btn-group",
-        # Pointing straight to the standard 'www/' folder asset channels
+        # We use direct text badges wrapped in distinct styling profiles
         actionButton(
           "btn_myl",
-          label = tags$img(src = "www/myl.png", alt = "Mitos y Leyendas"),
+          label = tags$span(class = "badge-txt b-myl", "Mitos y Leyendas"),
           class = "btn-preset"
         ),
         actionButton(
           "btn_mtg",
-          label = tags$img(src = "www/mtg.png", alt = "Magic"),
+          label = tags$span(class = "badge-txt b-mtg", "Magic (MTG)"),
           class = "btn-preset"
         ),
         actionButton(
           "btn_poke",
-          label = tags$img(src = "www/pokemon.png", alt = "Pokémon"),
+          label = tags$span(class = "badge-txt b-poke", "Pokémon TCG"),
           class = "btn-preset"
         ),
         actionButton(
           "btn_ygo",
-          label = tags$img(src = "www/yugioh.png", alt = "Yu-Gi-Oh"),
+          label = tags$span(class = "badge-txt b-ygo", "Yu-Gi-Oh!"),
           class = "btn-preset"
         )
       )
@@ -48,11 +48,11 @@ hypergeometric_inputs <- function() {
 
     hr(),
 
-    # 3. Global Shared Parameters (Initialized to Mitos y Leyendas defaults!)
+    # 3. Global Shared Parameters
     numericInput("N", "Total Deck Size:", value = 49, min = 1, step = 1),
     numericInput("n", "Cards to Draw:", value = 8, min = 1, step = 1),
 
-    # 4. Single Mode Settings (Initialized to Mitos y Leyendas defaults!)
+    # 4. Single Mode Settings
     conditionalPanel(
       condition = "input.app_mode_toggle == false",
       tags$div(
