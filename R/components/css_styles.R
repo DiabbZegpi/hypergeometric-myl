@@ -184,9 +184,9 @@ minimal_css <- function() {
       .btn-run:hover { background-color: #4338ca !important; }
       .btn-run:active { transform: scale(0.98) !important; }
 
-                 /* --- PREMIUM BRAND LOGO CARDS --- */
+         /* --- PREMIUM MINIMALIST BRAND LOGO TOGGLES --- */
       .preset-container {
-        margin-bottom: 22px;
+        margin-bottom: 24px;
       }
       .preset-label {
         font-family: 'Plus Jakarta Sans', sans-serif !important;
@@ -195,45 +195,55 @@ minimal_css <- function() {
         letter-spacing: 0.05em;
         font-weight: 700;
         color: #64748b;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
         display: block;
       }
       .preset-btn-group {
         display: flex;
-        gap: 8px;
+        gap: 12px;
         flex-wrap: wrap;
         align-items: center;
       }
+      
+      /* Turn the heavy boxed buttons into flat, elegant floating targets */
       .btn-preset {
-        background-color: #ffffff !important;
-        border: 1px solid #e2e8f0 !important;
-        padding: 8px 12px !important;
-        border-radius: 8px !important;
+        background-color: transparent !important; /* Strips out the box background */
+        border: none !important;                  /* Strips out the box border outline */
+        padding: 4px 8px !important;              /* Tightens padding spacing layout */
+        border-radius: 6px !important;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        /* Uniform structural grid sizing */
-        width: 115px !important; 
-        height: 42px !important;
-        transition: all 0.2s ease-in-out !important;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+        height: auto !important;
+        width: auto !important; /* Lets each logo occupy its natural fluid width scale */
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: none !important;
       }
+      
+      /* Subtle micro-animations for floating interaction feedback */
       .btn-preset:hover {
-        background-color: #f8fafc !important;
-        border-color: #cbd5e1 !important;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+        background-color: rgba(226, 232, 240, 0.4) !important; /* Smooth transparent background pill hover */
+        transform: translateY(-2px);
       }
+      
       .btn-preset:active {
-        transform: translateY(0px) scale(0.98);
+        transform: translateY(0px) scale(0.95);
       }
-      /* Clean boundary constraints for custom downloaded images */
+      
+      /* --- ENLARGED IMAGE PROPERTIES --- */
       .btn-preset img {
-        max-height: 24px !important;
-        max-width: 95px !important;
+        height: 32px !important;    /* Upscaled from 24px for premium high-visibility presence */
+        width: auto !important;
         object-fit: contain;
         display: block;
+        filter: grayscale(15%) opacity(90%); /* Subtle editorial filtering */
+        transition: filter 0.2s ease !important;
+      }
+      
+      /* Hover highlights the logo color completely */
+      .btn-preset:hover img {
+        filter: grayscale(0%) opacity(100%);
       }
     "
     ))
