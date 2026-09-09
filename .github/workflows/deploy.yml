@@ -36,16 +36,14 @@ jobs:
       - name: Convert Shiny App to Static Files
         run: |
           Rscript -e "
-            # FIXED: Install the missing package directly inside the runner environment
             install.packages('base64enc')
-            
-            # Now the favicon script will execute perfectly without crashing
             img_data <- base64enc::base64encode('R/logo.png')
             favicon_html <- paste0('<link rel=\"icon\" type=\"image/png\" href=\"data:image/png;base64,', img_data, '\">')
             shinylive::export('R', 'site', include_in_head = favicon_html)
           "
-          # Forcibly inject all your downloaded local PNG logos straight into the web root
-          cp R/*.png site/
+          # --- FIXED: Creates the matching asset folder on your live serverless website directory ---
+          mkdir -p site/assets
+          cp R/*.png site/assets/
 
 
 
