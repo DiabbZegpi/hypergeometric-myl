@@ -29,20 +29,25 @@ jobs:
         with:
           use-public-rspm: true
 
+      # --- FIXED: Uses native GitHub Action package installation handlers ---
+      # This handles any network blocks cleanly, using official global CRAN mirrors automatically
+      - name: Install Required Packages
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: |
+            base64enc
+            shinylive
+
       - name: Convert Shiny App to Static Files
         run: |
           Rscript -e "
-            # 1. Install dependencies using fast pre-compiled binaries inside the active block
-            install.packages('base64enc', repos='https://posit.co')
-            install.packages('shinylive', repos='https://posit.co')
-            
-            # 2. Inject standard relative link pointing straight to the flat logo file
+            # Inject standard relative link pointing straight to the flat logo file
             favicon_html <- '<link rel=\"icon\" type=\"image/png\" href=\"logo.png\">'
             
-            # 3. Execute the serverless export with the native packages now fully visible
+            # Execute the serverless export using the natively installed packages
             shinylive::export('R', 'site', include_in_head = favicon_html)
           "
-          # 4. Build subdirectories and copy assets
+          # Build subdirectories and copy all assets into place
           mkdir -p site/assets
           cp R/*.png site/assets/
           cp R/logo.png site/
